@@ -1,0 +1,47 @@
+******************************************CHEKPOINT PL/SQL******************************************************
+
+
+
+
+//1
+declare 
+cursor curs1 is select * from customer ;
+begin 
+  for rec in curs1 loop 
+  dbms_output.put_line(rec.costumer_name || ' ' || rec.costumer_phone) ;
+  end loop ;
+  end ;
+
+//2
+CREATE or replace PROCEDURE PS_Customer_Prodcuts (v_pro_id Orders.costumer_id%type) is
+cursor cur IS SELECT product_name FROM product WHERE product_id in (SELECT product_id from Ordres WHERE costumer_id=v_pro_id);
+BEGIN
+	FOR rec IN cur LOOP
+		dbms_output.put_line(rec.product_name);
+	END LOOP;
+EXCEPTION 
+    WHEN NO_DATA_FOUND THEN 
+         dbms_output.put_line('No products returned or customer not found')
+
+END;
+call PS_Customer_Prodcuts()
+
+//3
+CREATE OR REPLACE  FUNCTION  FN_CUSTO_ORDERS (v_cust_id Orders.costumer_id%type) RETURN number is 
+    order_nb number := 0 ;
+BEGIN 
+  SELECT COUNT(*) INTO order_nb FROM Orders WHERE costumer_id = v_cust_id;
+     RETURN order_nb ;
+END ;
+ 
+//4 TRIGGER
+
+CREATE TRIGGER TRIG_INS_ORDERS before INSERT
+ ON Orders 
+ FOR EACH ROW 
+ begin
+ if  :NEW.OrderDate >= SYSDATE then 
+ dbms_output.put_line('Order Date must be greater than or equal to today's date');
+ end if ;
+ end ;
+
